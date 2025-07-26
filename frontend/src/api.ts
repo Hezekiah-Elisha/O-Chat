@@ -1,6 +1,6 @@
 const socket = new WebSocket("ws://localhost:8080/ws");
 
-const connect = () => {
+const connect = (cb: (msg: string) => void) => {
     console.log("Connecting to WebSocket...");
 
     socket.onopen = () => {
@@ -9,6 +9,7 @@ const connect = () => {
 
     socket.onmessage = msg => {
         console.log("Message received from server:", msg.data);
+        cb(msg.data);
     }
 
     socket.onclose = event => {
