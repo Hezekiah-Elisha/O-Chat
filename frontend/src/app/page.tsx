@@ -1,11 +1,14 @@
 "use client";
-import Image from "next/image";
 import { connect, sendMsg } from "@/api";
 import Header from "@/components/Header";
 import ChatHistory from "@/components/ChatHistory";
+import { useState } from "react";
 
 export default function Home() {
-  connect();
+  const [chatHistory, setChatHistory] = useState<string[]>([]);
+  connect((msg) => {
+    setChatHistory((prev) => [...prev, msg]);
+  });
   const sendMessage = () => {
     console.log("Sending message to WebSocket server...");
     sendMsg("Hello, WebSocket server!");
@@ -22,7 +25,7 @@ export default function Home() {
             Send Message
           </span>
         </button>
-        <ChatHistory messages={[]} />
+        <ChatHistory messages={chatHistory} />
       </main>
     </div>
   );

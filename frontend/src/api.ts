@@ -1,30 +1,35 @@
-const socket = new WebSocket("ws://localhost:8080/ws");
+// const socket: WebSocket = new WebSocket("ws://localhost:8080/ws");
+let socket: WebSocket | null = null;
 
-const connect = (cb: (msg: string) => void) => {
-    console.log("Connecting to WebSocket...");
+export const connect = (cb: (msg: string) => void) => {
+  console.log("Connecting to WebSocket...");
 
-    socket.onopen = () => {
-        console.log("WebSocket connection established.");
-    }
+  socket = new WebSocket("ws://localhost:8080/ws");
 
-    socket.onmessage = msg => {
-        console.log("Message received from server:", msg.data);
-        cb(msg.data);
-    }
+  socket.onopen = () => {
+    console.log("WebSocket connection established.");
+  };
 
-    socket.onclose = event => {
-        console.log("WebSocket connection closed:", event.reason);
-        setTimeout(connect, 1000); // Attempt to reconnect after 1 second
-    }
+  socket.onmessage = (msg) => {
+    console.log("Message received from server:", msg.data);
+    cb(msg.data);
+  };
 
-    socket.onerror = error => {
-        console.error("WebSocket error:", error);
-    };
+  socket.onclose = (event) => {
+    console.log("WebSocket connection closed:", event.reason);
+    setTimeout(connect, 1000); // Attempt to reconnect after 1 second
+  };
+
+  socket.onerror = (error) => {
+    console.error("WebSocket error:", error);
+  };
 };
 
-const sendMsg = (msg: string) => {
-    console.log("Sending msg: ", msg);
-    socket.send(msg);
+export const sendMsg = (msg: string) => {
+  if (!socket || socket.readyState !== WebSocket.OPEN) {
+    console.warn("WebSocket is not open. Message not sent.", msg);
+    return;
+  }
+  console.log("Sending msg: ", msg);
+  socket.send(msg);
 };
-
-export { connect, sendMsg };
